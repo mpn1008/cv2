@@ -1,0 +1,36 @@
+{
+  "name": "cv2 – CUDA + UV",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": [
+    "--gpus=all",
+    "--shm-size=8g"
+  ],
+  "containerEnv": {
+    "NVIDIA_VISIBLE_DEVICES": "all",
+    "NVIDIA_DRIVER_CAPABILITIES": "compute,utility"
+  },
+  "mounts": [],
+  "workspaceFolder": "/workspaces/cv2",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-renderers",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/workspaces/cv2/.venv/bin/python",
+        "editor.formatOnSave": true,
+        "python.terminal.activateEnvironment": true
+      }
+    }
+  },
+  "postCreateCommand": "uv sync && echo 'source /workspaces/cv2/.venv/bin/activate' >> ~/.bashrc",
+  "remoteUser": "root"
+}
