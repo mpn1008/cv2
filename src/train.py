@@ -6,7 +6,7 @@ Usage (from repo root):
 
 import argparse
 from pathlib import Path
-
+from datetime import datetime
 import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -90,6 +90,10 @@ def val_epoch(
 def main(cfg: Config) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    cfg.train.checkpoint_dir = cfg.train.checkpoint_dir / f"{cfg.model.backbone}_{timestamp}"
+    cfg.train.log_dir = cfg.train.log_dir / f"{cfg.model.backbone}_{timestamp}"
 
     cfg.train.checkpoint_dir.mkdir(parents=True, exist_ok=True)
     cfg.train.log_dir.mkdir(parents=True, exist_ok=True)
@@ -178,7 +182,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train fixation prediction model")
     parser.add_argument("--train-root", type=Path, default="data/training")
     parser.add_argument("--val-root", type=Path, default="data/validation")
-    parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--no-pretrained", action="store_true")
@@ -190,6 +193,6 @@ if __name__ == "__main__":
             train_root=args.train_root, val_root=args.val_root, num_workers=args.num_workers
         ),
         model=ModelConfig(pretrained=not args.no_pretrained),
-        train=TrainConfig(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr),
+        train=TrainConfig(batch_size=args.batch_size, lr=args.lr),
     )
     main(cfg)
