@@ -117,6 +117,7 @@ def main(cfg: Config) -> None:
         w_kl=cfg.train.w_kl,
         w_cc=cfg.train.w_cc,
         w_mse=cfg.train.w_mse,
+        w_nss=cfg.train.w_nss,
     )
     optimiser = AdamW(
         model.parameters(),

@@ -45,12 +45,30 @@ def mse_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     return F.mse_loss(pred, target)
 
 
+def nss_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    """Negative NSS: penalises low prediction values at fixation locations.
+    NSS = mean z-score of pred at fixation pixels (target > 0).
+    We negate so it can be minimised.
+    """
+    b = pred.shape[0]
+    p = pred.view(b, -1)
+    t = target.view(b, -1)
+    # z-score the prediction per image
+    p_z = (p - p.mean(dim=1, keepdim=True)) / (p.std(dim=1, keepdim=True) + _EPS)
+    fix = (t > 0).float()
+    nss_per = (p_z * fix).sum(dim=1) / (fix.sum(dim=1) + _EPS)
+    return -nss_per.mean()  # negative because we minimise
+
+
 class SaliencyLoss(torch.nn.Module):
-    def __init__(self, w_kl: float = 1.0, w_cc: float = 1.0, w_mse: float = 0.5):
+    def __init__(
+        self, w_kl: float = 1.0, w_cc: float = 1.0, w_mse: float = 0.5, w_nss: float = 0.5
+    ):
         super().__init__()
         self.w_kl = w_kl
         self.w_cc = w_cc
         self.w_mse = w_mse
+        self.w_nss = w_nss
 
     def forward(
         self, pred: torch.Tensor, target: torch.Tensor
@@ -58,11 +76,13 @@ class SaliencyLoss(torch.nn.Module):
         l_kl = kl_loss(pred, target)
         l_cc = cc_loss(pred, target)
         l_mse = mse_loss(pred, target)
-        total = self.w_kl * l_kl + self.w_cc * l_cc + self.w_mse * l_mse
+        l_nss = nss_loss(pred, target)
+        total = self.w_kl * l_kl + self.w_cc * l_cc + self.w_mse * l_mse + self.w_nss * l_nss
         breakdown = {
             "loss/kl": l_kl.item(),
             "loss/cc": l_cc.item(),
             "loss/mse": l_mse.item(),
+            "loss/nss": l_nss.item(),
             "loss/total": total.item(),
         }
         return total, breakdown

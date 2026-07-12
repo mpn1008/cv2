@@ -16,21 +16,22 @@ class DataConfig:
 
 @dataclass
 class ModelConfig:
-    backbone: str = "resnet101"
+    backbone: str = "resnet50"  # resnet50
     pretrained: bool = True
     decoder_channels: list = field(default_factory=lambda: [256, 128, 64, 32])
 
 
 @dataclass
 class TrainConfig:
-    epochs: int = 80
+    epochs: int = 50
     batch_size: int = 16
     lr: float = 1e-4
     weight_decay: float = 1e-4
-    # loss weights (kl + cc + mse)
+    # loss weights — KL is primary per saliency literature (SAM, EML-NET)
     w_kl: float = 1.0
     w_cc: float = 1.0
-    w_mse: float = 0
+    w_mse: float = 0.5
+    w_nss: float = 0.5  # differentiable AUC proxy: pushes fixated pixels to rank higher
     checkpoint_dir: Path = Path("checkpoints")
     log_dir: Path = Path("runs")
     save_every: int = 5  # save checkpoint every N epochs
