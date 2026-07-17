@@ -15,6 +15,6 @@ sudo systemctl restart docker
 
 Notes
 -----
-- The container image is based on `nvidia/cuda:12.1.1-devel-ubuntu22.04`.
+- The container image is based on `nvidia/cuda:12.8.2-devel-ubuntu22.04`.
 - `postCreateCommand` upgrades `pip` inside the container.
 - If you already have a compatible `image` you'd like to use, update `devcontainer.json` accordingly.
