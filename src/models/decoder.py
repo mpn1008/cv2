@@ -37,22 +37,6 @@ class DecoderBlock(nn.Module):
 
 
 class SaliencyDecoder(nn.Module):
-    """
-    Decodes EncoderFeatures back to the original spatial resolution.
-
-    Architecture (for ResNet-50 input 224×224):
-        s5  2048        → block4 →  256   (7  → 14)
-        s4  1024  skip  → block3 →  128   (14 → 28)
-        s3   512  skip  → block2 →   64   (28 → 56)
-        s2   256  skip  → block1 →   32   (56 → 56, same resolution as s2)
-        s1    64  skip  → block0 →   16   (56 → 112)
-                         upsample × 2 → 224
-                         head (1×1 conv + sigmoid)
-
-    decoder_channels: list of 4 output channel widths for blocks 4..1
-                      (block0 is fixed at half of the last value)
-    """
-
     def __init__(self, decoder_channels: list[int] = None):
         super().__init__()
         if decoder_channels is None:

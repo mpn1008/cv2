@@ -2,4 +2,4 @@ runs
 data/validation
 data/testing
 checkpoints
-predictions
+predictions*
