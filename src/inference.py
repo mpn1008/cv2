@@ -2,7 +2,7 @@
  
 Usage (from repo root):
     python3 -m src.inference \\
-        --checkpoint checkpoints/resnet50_20260709_173527/best.pt \\
+        --checkpoint checkpoints/checkpoints/resnet50_20260712_011238/best.pt \\
         --test-root  data/testing \\
         --test-txt   test_images.txt \\
         --output-dir predictions
@@ -91,7 +91,8 @@ def predict(
             )
             # Convert to uint8 grayscale PIL image
             pred_np = (pred_img.squeeze(0).numpy() * 255).clip(0, 255).astype("uint8")
-            out_name = f"pred_{path.stem}.png"
+            s = path.stem[-4:]
+            out_name = f"prediction-{s}.png"
             Image.fromarray(pred_np, mode="L").save(output_dir / out_name)
 
     print(f"Saved {len(image_paths)} predictions → {output_dir}")
